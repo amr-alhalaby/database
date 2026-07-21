@@ -1,8 +1,8 @@
 pgadmin4:
   ingress:
-    enabled: false
+    enabled: true # enable ingress for pgadmin
     hosts:
-      - host: pgadmin.example.com
+      - host: pgadmin-vghk3t58.development.krci-dev.cloudmentor.academy
         paths:
           - path: /
             pathType: Prefix
