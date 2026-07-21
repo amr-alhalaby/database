@@ -4,7 +4,14 @@ metadata:
   name: init-job-test-data
 data:
   data.sql: |
-    INSERT INTO messages VALUES
+    CREATE TABLE IF NOT EXISTS messages (
+      author TEXT NOT NULL,
+      content TEXT NOT NULL,
+      description TEXT NOT NULL,
+      CONSTRAINT messages_unique_record UNIQUE (author, content, description)
+    );
+
+    INSERT INTO messages (author, content, description) VALUES
       ('Alice Johnson', 'Welcome to our new database system!', 'Initial setup record'),
       ('Bob Smith', 'Database migration completed successfully', 'Migration note'),
       ('Carol Williams', 'Testing data persistence and reliability', 'QA test entry'),
@@ -14,4 +21,5 @@ data:
       ('Grace Wilson', 'Multi-region sync verification', 'Replication test'),
       ('Henry Moore', 'API endpoint validation record', 'Integration test'),
       ('Ivy Taylor', 'Schema versioning checkpoint', 'Version control'),
-      ('Jack Anderson', 'Production readiness verification', 'Go-live checkpoint');
+      ('Jack Anderson', 'Production readiness verification', 'Go-live checkpoint')
+    ON CONFLICT DO NOTHING;
