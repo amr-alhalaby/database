@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-job-test-data
+data:
+  data.sql: |
+    INSERT INTO messages VALUES
+      ('Alice Johnson', 'Welcome to our new database system!', 'Initial setup record'),
+      ('Bob Smith', 'Database migration completed successfully', 'Migration note'),
+      ('Carol Williams', 'Testing data persistence and reliability', 'QA test entry'),
+      ('David Brown', 'Performance benchmark entry', 'Load testing'),
+      ('Emma Davis', 'Security audit checkpoint', 'Security review'),
+      ('Frank Miller', 'Backup and recovery test entry', 'DR test'),
+      ('Grace Wilson', 'Multi-region sync verification', 'Replication test'),
+      ('Henry Moore', 'API endpoint validation record', 'Integration test'),
+      ('Ivy Taylor', 'Schema versioning checkpoint', 'Version control'),
+      ('Jack Anderson', 'Production readiness verification', 'Go-live checkpoint');
