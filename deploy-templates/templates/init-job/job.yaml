@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-data
+spec:
+  backoffLimit: 6
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-14.8-0
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL to be ready..."
+              until pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE"; do
+                echo "PostgreSQL is unavailable - retrying in 2 seconds..."
+                sleep 2
+              done
+              echo "PostgreSQL is up and ready!"
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: host
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: port
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: password
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: dbname
+      restartPolicy: OnFailure
+      containers:
+        - name: init-data
+          image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-14.8-0
+          command:
+            - sh
+            - -c
+            - |
+              echo "Starting database initialization..."
+              PGPASSWORD="$PGPASSWORD" psql \
+                -h "$PGHOST" \
+                -p "$PGPORT" \
+                -U "$PGUSER" \
+                -d "$PGDATABASE" \
+                -f /docker-entrypoint-initdb.d/data.sql
+              echo "Database initialization completed successfully!"
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: host
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: port
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: password
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: application-pguser-admin
+                  key: dbname
+          volumeMounts:
+            - name: init-job-data
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-job-data
+          configMap:
+            name: init-job-test-data
